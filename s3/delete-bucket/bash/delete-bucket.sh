@@ -17,5 +17,9 @@ aws s3api delete-bucket \
     --bucket "$BUCKET_NAME" \
     --region "$AWS_REGION"
 
-# Message de succès
-echo "✅ Bucket '$BUCKET_NAME' supprimé avec succès dans la région '$AWS_REGION'."
+# Message de succès ou d'échec
+if [ $? -eq 0 ]; then
+    echo "✅ Bucket '$BUCKET_NAME' supprimé avec succès"
+else
+    echo "❌ Erreur lors de la création du bucket"
+fi
