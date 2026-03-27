@@ -11,15 +11,53 @@ source "$SCRIPT_DIR/../config.env"
 
 set +a  # stop export
 
-# Création du bucket
-aws s3api create-bucket \
-    --bucket "$BUCKET_NAME" \
-    --region "$AWS_REGION" \
-    --create-bucket-configuration LocationConstraint="$AWS_REGION"
+#########################################################
+# SECTION 1: Création d'un seul bucket
+#########################################################
 
-# Message de succès ou d'échec
-if [ $? -eq 0 ]; then
-    echo "✅ Bucket '$BUCKET_NAME' créé avec succès"
-else
-    echo "❌ Erreur lors de la création du bucket"
-fi
+# aws s3api create-bucket \
+#     --bucket "$BUCKET_NAME" \
+#     --region "$AWS_REGION" \
+#     --create-bucket-configuration LocationConstraint="$AWS_REGION"
+
+# # Message de succès ou d'échec
+# if [ $? -eq 0 ]; then
+#     echo "✅ Bucket '$BUCKET_NAME' créé avec succès"
+# else
+#     echo "❌ Erreur lors de la création du bucket"
+# fi
+
+
+#########################################################
+# SECTION 2: Création de plusieurs buckets
+#########################################################
+
+for i in {1..3}; do
+
+    # Vérification si le bucket existe déjà
+    if aws s3api head-bucket --bucket "$BUCKET_NAME-$i" 2>/dev/null; then
+        echo "⚠️ Bucket '$BUCKET_NAME-$i' existe déjà, passage"
+        continue
+    fi
+
+    echo ""  # ligne vide de séparation
+    echo "🪣 Création du bucket '$BUCKET_NAME-$i'"
+    echo "-------------------------------------"
+
+    # Création du bucket
+    aws s3api create-bucket \
+        --bucket "$BUCKET_NAME-$i" \
+        --region "$AWS_REGION" \
+        --create-bucket-configuration LocationConstraint="$AWS_REGION"
+
+    # Message de succès ou d'échec
+    if [ $? -eq 0 ]; then
+        echo "  ✅ Bucket '$BUCKET_NAME-$i' créé avec succès"
+    else
+        echo "  ❌ Erreur lors de la création du bucket"
+    fi
+
+done
+
+echo ""
+echo "🏁 Terminé."
