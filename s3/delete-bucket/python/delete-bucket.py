@@ -42,7 +42,7 @@ def delete_bucket(bucket_name, region):
             else:
                 print(f"    ✅  Le bucket est déjà vide")
         except ClientError as e:
-            print(f"    ❌ Erreur lors de la suppression du contenu")
+            print(f"    ❌ Erreur lors de la suppression du contenu : {e}")
             return False
 
         #Supprimer le bucket
