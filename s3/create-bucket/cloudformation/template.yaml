@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Création d'un bucket S3 via CloudFormation
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: "Nom du bucket S3 à créer"
+
+Resources:
+  MyBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
