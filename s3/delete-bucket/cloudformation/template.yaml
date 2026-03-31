@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+# Paramètre pour nommer le bucket à supprimer
+Parameters:
+  BucketName:
+    Type: String
+    Description: "Nom du bucket à supprimer"
+
+Resources:
+  # Rôle IAM pour le Lambda de nettoyage
+  CleanupRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com  # Le rôle peut être assumé par Lambda
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CleanupPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket     # Autorise le Lambda à lister le bucket
+                  - s3:DeleteObject   # Autorise le Lambda à supprimer tous les objets
+                  - s3:DeleteBucket   # Autorise le Lambda à supprimer le bucket
+                Resource: "*"          # Pour l’apprentissage, accès à tous les buckets
+
+  # Lambda qui vide le bucket lors de la suppression du stack
+  CleanupFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.9
+      Handler: index.handler
+      Role: !GetAtt CleanupRole.Arn  # Attache le rôle IAM créé ci-dessus
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+
+          def handler(event, context):
+              if event['RequestType'] == 'Delete':
+                  s3 = boto3.resource('s3')
+                  bucket = s3.Bucket(event['ResourceProperties']['BucketName'])
+                  bucket.objects.all().delete()  # Supprime tous les objets
+                  bucket.delete()                # Supprime le bucket lui-même
+
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+
+  # Custom Resource pour déclencher le Lambda de nettoyage
+  CleanupTrigger:
+    Type: Custom::Cleanup
+    Properties:
+      ServiceToken: !GetAtt CleanupFunction.Arn  # Lambda à exécuter
+      BucketName: !Ref BucketName               # Passe le nom du bucket au Lambda
