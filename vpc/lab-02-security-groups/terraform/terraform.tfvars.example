@@ -1,0 +1,1 @@
+my_ip = "82.123.45.67/32" #Your ipv4 that you can find with the command "curl -4 ifconfig.me" + "/32"
