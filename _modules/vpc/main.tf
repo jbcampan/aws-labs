@@ -4,6 +4,10 @@
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 
+  # Added later for the SSM (ec2/lab01-instance_ssm):
+  enable_dns_support = true   # Enables DNS resolution within the VPC (required to resolve AWS service endpoints) 
+  enable_dns_hostnames = true # Allows resources in the VPC to have internal DNS hostnames. Required for private_dns_enabled on VPC endpoints to work properly
+
   tags = { Name = var.vpc_name }
 }
 
