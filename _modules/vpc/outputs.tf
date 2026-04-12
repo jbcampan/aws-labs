@@ -8,9 +8,16 @@ output "vpc_cidr" {
   value       = aws_vpc.main.cidr_block
 }
 
+# Single string (for compatibility with other labs)
 output "public_subnet_id" {
-  description = "Public subnet ID"
+  description = "Public subnet ID (AZ-a)"
   value       = aws_subnet.public.id
+}
+
+# List for ALB + ASG (both need it)
+output "public_subnet_ids" {
+  description = "List of public subnet IDs across AZs — use this for ALB and ASG"
+  value = compact([aws_subnet.public.id, try(aws_subnet.public_b[0].id, "")])
 }
 
 output "private_subnet_id" {
