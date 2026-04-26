@@ -1,0 +1,7 @@
+id,name,amount,active
+1,alice martin,1250.50,true
+2,bob dupont,875.00,true
+3,charlie durand,2100.75,false
+4,diana leblanc,430.25,true
+5,eric moreau,0.00,false
+6,françoise petit,3200.00,true
