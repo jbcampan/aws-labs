@@ -213,3 +213,6 @@ __marimo__/
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup
+
+# Terraform Lambda packages
+lambda/**/.zip/
