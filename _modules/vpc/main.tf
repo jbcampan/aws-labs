@@ -54,6 +54,51 @@ resource "aws_subnet" "private" {
   tags = { Name = "${var.vpc_name}-private-subnet" }
 }
 
+# Private AZ-b (optional — RDS multi-AZ, Lambda multi-AZ)
+resource "aws_subnet" "private_b" {
+  count             = var.private_subnet_cidr_b != "" ? 1 : 0
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidr_b
+  availability_zone = "${data.aws_region.current.name}b"
+
+  tags = { Name = "${var.vpc_name}-private-subnet-b" }
+}
+
+######################################
+# 4. NAT Gateway (optional)
+#
+# Required when resources in private subnets need to initiate
+# outbound connections to the internet (Lambda → external APIs,
+# image pulling, etc.).
+#
+# The NAT Gateway is placed in the PUBLIC subnet (AZ-a), which
+# already has a route to the Internet Gateway (IGW). Private subnets
+# route their 0.0.0.0/0 traffic through it.
+#
+# Why is enable_nat_gateway = false by default?
+# A NAT Gateway costs ~0.045$/hour even without traffic. Labs that
+# do not require outbound internet access from private subnets should
+# avoid this cost.
+######################################
+resource "aws_eip" "nat" {
+  count  = var.enable_nat_gateway ? 1 : 0
+  domain = "vpc"
+
+  tags = { Name = "${var.vpc_name}-nat-eip" }
+
+  depends_on = [aws_internet_gateway.main]
+}
+
+resource "aws_nat_gateway" "main" {
+  count         = var.enable_nat_gateway ? 1 : 0
+  allocation_id = aws_eip.nat[0].id
+  subnet_id     = aws_subnet.public.id   # Must be in a PUBLIC subnet
+
+  tags = { Name = "${var.vpc_name}-nat-gw" }
+
+  depends_on = [aws_internet_gateway.main]
+}
+
 ######################################
 # 4. Route Tables
 ######################################
@@ -68,9 +113,20 @@ resource "aws_route_table" "public" {
   tags = { Name = "${var.vpc_name}-public-rt" }
 }
 
+# The default route in the private route table is only added if a NAT Gateway exists.
+# Without NAT: no routes → private subnets are fully isolated from the internet.
+# With NAT   : 0.0.0.0/0 → NAT Gateway → internet access.
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
+  dynamic "route" {
+    for_each = var.enable_nat_gateway ? [1] : []
+    content {
+      cidr_block     = "0.0.0.0/0"
+      nat_gateway_id = aws_nat_gateway.main[0].id
+    }
+  }
+  
   tags = { Name = "${var.vpc_name}-private-rt" }
 }
 
@@ -91,6 +147,13 @@ resource "aws_route_table_association" "public_b" {
 
 resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.private.id
+}
+
+#Private subnet B shares the same public route table.
+resource "aws_route_table_association" "private_b" {
+  count          = var.private_subnet_cidr_b != "" ? 1 : 0
+  subnet_id      = aws_subnet.private_b[0].id
   route_table_id = aws_route_table.private.id
 }
 
