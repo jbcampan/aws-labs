@@ -33,42 +33,11 @@ Two EventBridge rules listen on the default event bus and trigger targets automa
 
 ## Architecture
 
-```
-AWS (eu-west-3)
-──────────────────────────────────────────────────────────────────────
+![Architecture](docs/diagram-EventBridge-lab02-event-driven.png)
 
-                      DEFAULT EVENT BUS
-                  (AWS publishes all service events)
-                              │
-             ┌────────────────┴──────────────────┐
-             │                                   │
-   ┌─────────▼──────────┐             ┌──────────▼─────────┐
-   │ Rule: ec2-state-   │             │ Rule: iam-login-    │
-   │ change             │             │ failure             │
-   │ state: stopped /   │             │ ConsoleLogin:       │
-   │ terminated         │             │ Failure             │
-   └─────────┬──────────┘             └──────────┬─────────┘
-             │ retry: 3× / 1h                    │
-             ▼                                   ▼
-    ┌─────────────────┐                ┌──────────────────┐
-    │ Lambda Function │                │ CloudWatch Logs  │
-    │ handler.py      │                │ /events/         │
-    │                 │                │ security-alerts  │
-    └────────┬────────┘                └──────────────────┘
-             │
-    ┌────────┴────────┐
-    │   SNS Topic     │
-    │ ec2-alerts      │
-    └────────┬────────┘
-             │
-          📧 Email
+EC2 Instance ── stop/terminate ──► Default Event Bus
 
-
-  EC2 Instance ──stop/terminate──► Default Event Bus
-  IAM Console login failure ──────► Default Event Bus (via CloudTrail)
-
-──────────────────────────────────────────────────────────────────────
-```
+IAM Console login failure ──────► Default Event Bus (via CloudTrail)
 
 ---
 
