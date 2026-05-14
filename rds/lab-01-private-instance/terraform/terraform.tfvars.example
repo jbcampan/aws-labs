@@ -1,0 +1,4 @@
+aws_region   = "eu-west-3"
+project_name = "lab03"
+db_name      = "labdb"
+db_username  = "admin"
