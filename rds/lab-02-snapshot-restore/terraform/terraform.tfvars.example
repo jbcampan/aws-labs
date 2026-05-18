@@ -1,0 +1,12 @@
+# ──────────────────────────────────────────────────────────
+# Copy this file as terraform.tfvars and adjust values
+# DO NOT commit terraform.tfvars to git (contains secrets)
+# ──────────────────────────────────────────────────────────
+
+aws_region      = "eu-west-3"
+project         = "lab02"
+db_name         = "appdb"
+db_username     = "adminuser"
+db_password     = "ChangeMe123!"   # Minimum 8 characters, letters + numbers
+my_ip_cidr      = "0.0.0.0/0"     # Replace with your IP: curl ifconfig.me → "x.x.x.x/32"
+public_key_path = "~/.ssh/id_rsa.pub"
