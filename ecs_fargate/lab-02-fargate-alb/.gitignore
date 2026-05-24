@@ -1,0 +1,26 @@
+# ─── Terraform ───────────────────────────────────────────────────────────────
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.d/
+*.tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ─── Secrets & credentials ───────────────────────────────────────────────────
+*.pem
+*.key
+.env
+.env.*
+
+# ─── Docker ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+
+# ─── OS ──────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
