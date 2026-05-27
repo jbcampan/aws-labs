@@ -1,0 +1,36 @@
+# ─── Terraform generated files ───────────────────────────────────────────────
+
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform lock file (keep if you want reproducible provider versions)
+# Uncomment the next line if you do NOT want to commit it
+# .terraform.lock.hcl
+
+# ─── Lambda build artifacts ──────────────────────────────────────────────────
+
+terraform/.lambda-zips/
+*.zip
+
+# ─── Python cache files ──────────────────────────────────────────────────────
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ─── macOS / Linux editor files ──────────────────────────────────────────────
+
+.DS_Store
+Thumbs.db
+
+# ─── IDE files ───────────────────────────────────────────────────────────────
+
+.vscode/
+.idea/
